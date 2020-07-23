@@ -49,7 +49,7 @@ func main() {
 		log.Fatal("failed to create session store:", err)
 	}
 
-	sessionStore.Options.Secure = true
+	sessionStore.Options.SameSite = http.SameSiteLaxMode
 
 	r := mux.NewRouter()
 
