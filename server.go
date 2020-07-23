@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/duo-labs/webauthn.io/session"
@@ -14,16 +15,26 @@ import (
 )
 
 var webAuthn *webauthn.WebAuthn
-var userDB *userdb
+var userDB *Userdb
 var sessionStore *session.Store
 
 func main() {
 
+	// overriding variables from env.
+	origin := os.Getenv("ORIGIN")
+	if origin == "" {
+		origin = "http://localhost"
+	}
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
 	var err error
 	webAuthn, err = webauthn.New(&webauthn.Config{
-		RPDisplayName: "Foobar Corp.",     // Display Name for your site
-		RPID:          "localhost",        // Generally the domain name for your site
-		RPOrigin:      "http://localhost:8080", // The origin URL for WebAuthn requests
+		RPDisplayName: "Foobar Corp.",      // Display Name for your site
+		RPID:          "localhost",         // Generally the domain name for your site
+		RPOrigin:      origin + ":" + port, // The origin URL for WebAuthn requests
 		// RPIcon: "https://duo.com/logo.png", // Optional icon URL for your site
 	})
 
@@ -47,11 +58,12 @@ func main() {
 
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./pages")))
 
-	serverAddress := ":8080"
+	serverAddress := ":" + port
 	log.Println("starting server at", serverAddress)
 	log.Fatal(http.ListenAndServe(serverAddress, r))
 }
 
+// BeginRegistration is the handler for the first step in the webauthn registration step
 func BeginRegistration(w http.ResponseWriter, r *http.Request) {
 
 	// get username/friendly name
@@ -98,6 +110,7 @@ func BeginRegistration(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, options, http.StatusOK)
 }
 
+// FinishRegistration is the handler for the second step in the webauthn registration step
 func FinishRegistration(w http.ResponseWriter, r *http.Request) {
 
 	// get username
@@ -133,6 +146,7 @@ func FinishRegistration(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, "Registration Success", http.StatusOK)
 }
 
+// BeginLogin is the handler for first step in the webauthn login step
 func BeginLogin(w http.ResponseWriter, r *http.Request) {
 
 	// get username
@@ -168,6 +182,7 @@ func BeginLogin(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, options, http.StatusOK)
 }
 
+// FinishLogin is the handler for second step in the webauthn login step
 func FinishLogin(w http.ResponseWriter, r *http.Request) {
 
 	// get username

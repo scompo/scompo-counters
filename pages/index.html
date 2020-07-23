@@ -3,8 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>WebAuthn Demo</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <title>scompo-counters</title>
 </head>
 
 <body>
@@ -18,15 +17,13 @@
     <button onclick="loginUser()">Login</button>
 
     <script>
-
-        $(document).ready(function () {
-
+        (() => {
             // check whether current browser supports WebAuthn
             if (!window.PublicKeyCredential) {
                 alert("Error: this browser does not support WebAuthn");
                 return;
             }
-        });
+        })()
 
         // Base64 to ArrayBuffer
         function bufferDecode(value) {
@@ -43,19 +40,14 @@
 
         function registerUser() {
 
-            username = $("#email").val()
+            const username = document.getElementById("email").value
             if (username === "") {
                 alert("Please enter a username");
                 return;
             }
 
-            $.get(
-                '/register/begin/' + username,
-                null,
-                function (data) {
-                    return data
-                },
-                'json')
+            fetch('/register/begin/' + username, { headers: { Accept: 'application/json' }, })
+                .then(r => r.json())
                 .then((credentialCreationOptions) => {
                     console.log(credentialCreationOptions)
                     credentialCreationOptions.publicKey.challenge = bufferDecode(credentialCreationOptions.publicKey.challenge);
@@ -76,9 +68,13 @@
                     let clientDataJSON = credential.response.clientDataJSON;
                     let rawId = credential.rawId;
 
-                    $.post(
-                        '/register/finish/' + username,
-                        JSON.stringify({
+                    fetch('/register/finish/' + username, {
+                        method: 'POST',
+                        headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
                             id: credential.id,
                             rawId: bufferEncode(rawId),
                             type: credential.type,
@@ -86,11 +82,9 @@
                                 attestationObject: bufferEncode(attestationObject),
                                 clientDataJSON: bufferEncode(clientDataJSON),
                             },
-                        }),
-                        function (data) {
-                            return data
-                        },
-                        'json')
+                        })
+                    })
+                        .then(r => r.json())
                 })
                 .then((success) => {
                     alert("successfully registered " + username + "!")
@@ -104,19 +98,13 @@
 
         function loginUser() {
 
-            username = $("#email").val()
+            const username = document.getElementById("email").value
             if (username === "") {
                 alert("Please enter a username");
                 return;
             }
-
-            $.get(
-                '/login/begin/' + username,
-                null,
-                function (data) {
-                    return data
-                },
-                'json')
+            fetch('/login/begin/' + username, { headers: { Accept: 'application/json' }, })
+                .then(r => r.json())
                 .then((credentialRequestOptions) => {
                     console.log(credentialRequestOptions)
                     credentialRequestOptions.publicKey.challenge = bufferDecode(credentialRequestOptions.publicKey.challenge);
@@ -136,9 +124,13 @@
                     let sig = assertion.response.signature;
                     let userHandle = assertion.response.userHandle;
 
-                    $.post(
-                        '/login/finish/' + username,
-                        JSON.stringify({
+                    fetch('/login/finish/' + username, {
+                        method: 'POST',
+                        headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
                             id: assertion.id,
                             rawId: bufferEncode(rawId),
                             type: assertion.type,
@@ -148,11 +140,9 @@
                                 signature: bufferEncode(sig),
                                 userHandle: bufferEncode(userHandle),
                             },
-                        }),
-                        function (data) {
-                            return data
-                        },
-                        'json')
+                        })
+                    })
+                        .then(r => r.json())
                 })
                 .then((success) => {
                     alert("successfully logged in " + username + "!")

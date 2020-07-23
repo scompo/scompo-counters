@@ -5,17 +5,18 @@ import (
 	"sync"
 )
 
-type userdb struct {
+// Userdb is an in memory user storage.
+type Userdb struct {
 	users map[string]*User
 	mu    sync.RWMutex
 }
 
-var db *userdb
+var db *Userdb
 
 // DB returns a userdb singleton instance.
-func DB() *userdb {
+func DB() *Userdb {
 	if db == nil {
-		db = &userdb{
+		db = &Userdb{
 			users: make(map[string]*User),
 		}
 	}
@@ -23,7 +24,7 @@ func DB() *userdb {
 }
 
 // GetUser returns a *User by the user's name.
-func (db *userdb) GetUser(name string) (*User, error) {
+func (db *Userdb) GetUser(name string) (*User, error) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 	user, ok := db.users[name]
@@ -34,7 +35,7 @@ func (db *userdb) GetUser(name string) (*User, error) {
 }
 
 // PutUser stores a new *User in the db.
-func (db *userdb) PutUser(user *User) {
+func (db *Userdb) PutUser(user *User) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 	db.users[user.name] = user
