@@ -1,0 +1,21 @@
+{
+  "name": "scompo-counters",
+  "version": "0.0.1",
+  "description": "Counters webapp",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "standard --fix"
+  },
+  "author": "Mauro Scomparin <scompo@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@simplewebauthn/server": "^0.7.4",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4",
+    "standard": "^14.3.4"
+  }
+}
