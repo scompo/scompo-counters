@@ -1,14 +1,16 @@
 const SimpleWebAuthnServer = require('@simplewebauthn/server')
 const express = require('express')
 const https = require('https')
+const http = require('http')
 const fs = require('fs')
 
 const username = 'testUsername'
-const rpID = 'localhost'
+const rpID = process.env.RP_ID || 'localhost'
 const origin = `https://${rpID}`
 
 const host = '0.0.0.0'
-const port = 443
+const port = process.env.PORT || 443
+const useHttps = process.env.USE_HTTPS || false
 
 const memoryDB = {
   [username]: {
@@ -116,11 +118,16 @@ app.post('/webauthn/login/end', async (req, res) => {
   }
 })
 
-const server = https.createServer({
-  key: fs.readFileSync(`./${rpID}.key`),
-  cert: fs.readFileSync(`./${rpID}.crt`)
-}, app)
+let server
 
+if (useHttps) {
+  server = https.createServer({
+    key: fs.readFileSync(`./${rpID}.key`),
+    cert: fs.readFileSync(`./${rpID}.crt`)
+  }, app)
+} else {
+  server = http.createServer(app)
+}
 server.listen(port, host, () => {
   console.log(`Server started on https://${host}:${port}`)
 })

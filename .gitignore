@@ -1,1 +1,4 @@
-scompo-counters
+node_modules
+*.key
+*.crt
+
