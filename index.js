@@ -10,7 +10,7 @@ const port = process.env.PORT || 8080
 const useHttps = process.env.USE_HTTPS || false
 
 const rpID = process.env.RP_ID || 'localhost'
-const origin = `http://${rpID}:${port}`
+const origin = `https://${rpID}`
 
 const app = express()
 
