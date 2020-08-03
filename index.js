@@ -4,21 +4,14 @@ const https = require('https')
 const http = require('http')
 const fs = require('fs')
 
-const username = 'testUsername'
-const rpID = process.env.RP_ID || 'localhost'
-const origin = `https://${rpID}`
-
 const host = '0.0.0.0'
 const port = process.env.PORT || 443
 const useHttps = process.env.USE_HTTPS || false
 
-const memoryDB = {
-  [username]: {
-    id: username,
-    username: `user@${rpID}`,
-    devices: []
-  }
-}
+const rpID = process.env.RP_ID || 'localhost'
+const origin = `https://${rpID}`
+
+const memoryDB = {}
 
 const app = express()
 
@@ -27,7 +20,17 @@ app.use(express.json())
 
 app.get('/webauthn/register/start', async (req, res) => {
   const challenge = 'aNewUniqueChallengeEveryRegistration' // TODO implment it correctly
-  console.log(memoryDB)
+
+  const username = req.query.username
+
+  if (!memoryDB[username]) {
+    memoryDB[username] = {
+      id: username,
+      userName: `user@${rpID}`,
+      devices: []
+    }
+  }
+
   memoryDB[username].currentChallenge = challenge
 
   res.json(
@@ -36,7 +39,7 @@ app.get('/webauthn/register/start', async (req, res) => {
       rpID: rpID,
       challenge: challenge,
       userID: username,
-      userName: username,
+      userName: memoryDB[username].userName,
       timeout: 60 * 1000,
       attestationType: 'direct',
       excludedCredentialsIDs: memoryDB[username].devices.map(x => x.credentialID),
@@ -49,6 +52,7 @@ app.get('/webauthn/register/start', async (req, res) => {
 
 app.post('/webauthn/register/end', async (req, res) => {
   const body = req.body
+  const username = req.body.username
   const expectedChallenge = memoryDB[username].currentChallenge
   SimpleWebAuthnServer.verifyAttestationResponse({
     credential: body,
@@ -80,6 +84,8 @@ app.post('/webauthn/register/end', async (req, res) => {
 
 app.get('/webauthn/login/start', async (req, res) => {
   const challenge = 'aNewUniqueChallengeEveryAttestation' // TODO implment it correctly
+  const username = req.query.username
+
   memoryDB[username].currentChallenge = challenge
   console.log('login start:', memoryDB)
 
@@ -94,6 +100,7 @@ app.get('/webauthn/login/start', async (req, res) => {
 
 app.post('/webauthn/login/end', async (req, res) => {
   const body = req.body
+  const username = body.username
   const expectedChallenge = memoryDB[username].currentChallenge
   const dbAuthenticator = memoryDB[username].devices.find(x => x.credentialID === body.id)
   if (!dbAuthenticator) {
