@@ -4,13 +4,7 @@ const https = require('https')
 const http = require('http')
 const fs = require('fs')
 const db = require('./db')
-
-const host = '0.0.0.0'
-const port = process.env.PORT || 8080
-const useHttps = process.env.USE_HTTPS || false
-
-const rpID = process.env.RP_ID || 'localhost'
-const origin = `https://${rpID}`
+const config = require('./config')
 
 const app = express()
 
@@ -25,11 +19,7 @@ app.get('/webauthn/register/start', async (req, res) => {
   let user = await db.getUser(username)
 
   if (!user) {
-    user = {
-      id: username,
-      userName: `user@${rpID}`,
-      devices: []
-    }
+    user = await db.newUser(username)
   }
 
   user.currentChallenge = challenge
@@ -39,7 +29,7 @@ app.get('/webauthn/register/start', async (req, res) => {
   res.json(
     SimpleWebAuthnServer.generateAttestationOptions({
       serviceName: 'scompo-counters',
-      rpID: rpID,
+      rpID: config.rpID,
       challenge: challenge,
       userID: username,
       userName: user.userName,
@@ -64,8 +54,8 @@ app.post('/webauthn/register/end', async (req, res) => {
   SimpleWebAuthnServer.verifyAttestationResponse({
     credential: body,
     expectedChallenge: expectedChallenge,
-    expectedOrigin: origin,
-    expectedRPID: rpID
+    expectedOrigin: config.origin,
+    expectedRPID: config.rpID
   })
     .then(async verification => {
       const { verified, authenticatorInfo } = verification
@@ -123,8 +113,8 @@ app.post('/webauthn/login/end', async (req, res) => {
     const verification = SimpleWebAuthnServer.verifyAssertionResponse({
       credential: body,
       expectedChallenge: expectedChallenge,
-      expectedOrigin: origin,
-      expectedRPID: rpID,
+      expectedOrigin: config.origin,
+      expectedRPID: config.rpID,
       authenticator: dbAuthenticator
     })
     const { verified, authenticatorInfo } = verification
@@ -141,14 +131,14 @@ app.post('/webauthn/login/end', async (req, res) => {
 
 let server
 
-if (useHttps) {
+if (config.useHttps) {
   server = https.createServer({
-    key: fs.readFileSync(`./${rpID}.key`),
-    cert: fs.readFileSync(`./${rpID}.crt`)
+    key: fs.readFileSync(`./${config.rpID}.key`),
+    cert: fs.readFileSync(`./${config.rpID}.crt`)
   }, app)
 } else {
   server = http.createServer(app)
 }
-server.listen(port, host, () => {
-  console.log(`Server started on https://${host}:${port}`)
+server.listen(config.port, config.host, () => {
+  console.log(`Server started on https://${config.host}:${config.port}`)
 })

@@ -1,3 +1,4 @@
+const config = require('./config')
 const userdb = {}
 
 module.exports = {
@@ -11,5 +12,12 @@ module.exports = {
   },
   users: async function () {
     return Object.keys(userdb)
+  },
+  newUser: async function (username) {
+    return {
+      id: username,
+      userName: `${username}@${config.rpID}`,
+      devices: []
+    }
   }
 }
