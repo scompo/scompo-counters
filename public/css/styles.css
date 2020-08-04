@@ -1,7 +1,43 @@
-main {
-    width: 90%;
-    margin: auto;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
+.main {
+	padding: 0px 10px;
+}
+
+.site-header {
+	display:inline-flex;
+	align-items: center;
+}
+
+.site-header .site-title {
+	padding: 0px 10px;
+}
+
+.site-header .page-name {
+	padding: 0px 10px;
+}
+
+.site-menu {
+	display:flex;
+}
+
+.site-menu .menu-item {
+	padding: 0px 10px;
+}
+
+.login-container {
+	display: flex;
+	flex-direction: column;
+}
+
+.username-controls {
+	display: flex;
+	align-items: center;
+	width: 100%;
+}
+
+label {
+	padding: 0px 10px;
+}
+
+#inputUsername {
+	flex: 1;
 }

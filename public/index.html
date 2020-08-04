@@ -1,23 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<script src="https://unpkg.com/@simplewebauthn/browser@0.7.4/dist/simplewebauthn-browser.min.js"></script>
-	<link rel="stylesheet" href="/css/styles.css" />
-	<title>scompo-counters | Index</title>
-	<link rel="icon" type="image/png" href="/img/myicon.png">
-</head>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<script src="https://unpkg.com/@simplewebauthn/browser@0.7.4/dist/simplewebauthn-browser.min.js"></script>
+		<link rel="stylesheet" href="/css/styles.css" />
+		<title>scompo-counters | Index</title>
+		<link rel="icon" type="image/png" href="/img/myicon.png">
+	</head>
 
-<body>
-	<main>
-		<h1>Index</h1>
-		<ul>
-			<li><a href="/register">Register</a></li>
-			<li><a href="/login">Login</a></li>
-		</ul>
-	</main>
-</body>
+	<body>
+		<header class="site-header">
+			<h1 class="site-title">scompo-counters</h1>
+			<h2 class="page-name">Index</h2>
+		</header>
+		<nav class="site-menu">
+			<a class="menu-item" href="/">Index</a>
+			<a class="menu-item" href="/register">Register</a>
+			<a class="menu-item" href="/login">Login</a>
+		</nav>
+		<main>
+			<section>
+				<p>Here you can create custom counters and update them.</p>
+				<p>You can use webauthn and register a new user or login.</p>
+			</section>
+		</main>
+	</body>
 
 </html>
